@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.Button;
+import android.widget.TextView;
 
 public class T9InputMethodService extends InputMethodService {
 
@@ -28,12 +29,15 @@ public class T9InputMethodService extends InputMethodService {
         }
     };
 
+    private TextView statusBar;
     private Button btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9, btn0, btnStar, btnHash;
     private Button btnDel, btnCase, btnEnter, btnNext;
 
     @Override
     public View onCreateInputView() {
         View root = getLayoutInflater().inflate(R.layout.keyboard_view, null);
+
+        statusBar = (TextView) root.findViewById(R.id.status_bar);
 
         btn1 = (Button) root.findViewById(R.id.key_1);
         btn2 = (Button) root.findViewById(R.id.key_2);
@@ -105,6 +109,7 @@ public class T9InputMethodService extends InputMethodService {
                 } else {
                     ic.deleteSurroundingText(1, 0);
                 }
+                updateStatus("deleted");
             }
         });
 
@@ -116,6 +121,7 @@ public class T9InputMethodService extends InputMethodService {
                 if (ic != null) {
                     ic.deleteSurroundingText(50, 0);
                 }
+                updateStatus("cleared");
                 return true;
             }
         });
@@ -131,11 +137,13 @@ public class T9InputMethodService extends InputMethodService {
                     int action = ei.imeOptions & EditorInfo.IME_MASK_ACTION;
                     if (action != EditorInfo.IME_ACTION_NONE && action != EditorInfo.IME_ACTION_UNSPECIFIED) {
                         ic.performEditorAction(action);
+                        updateStatus("action");
                         return;
                     }
                 }
                 ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
                 ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
+                updateStatus("enter");
             }
         });
 
@@ -143,10 +151,12 @@ public class T9InputMethodService extends InputMethodService {
             @Override
             public void onClick(View v) {
                 commitPendingChar();
+                updateStatus("committed");
             }
         });
 
         updateKeyLabels();
+        updateStatus("ready");
         return root;
     }
 
@@ -159,6 +169,7 @@ public class T9InputMethodService extends InputMethodService {
             String num = getNumberForKey(keyId);
             if (num.length() > 0) {
                 ic.commitText(num, 1);
+                updateStatus("num: " + num);
             }
             return;
         }
@@ -183,6 +194,7 @@ public class T9InputMethodService extends InputMethodService {
 
         ic.setComposingText(currentChar, 1);
         hasPendingChar = true;
+        updateStatus("tap " + (tapIndex + 1) + "/" + chars.length() + " -> '" + currentChar + "'");
         handler.postDelayed(commitRunnable, MULTI_TAP_TIMEOUT_MS);
     }
 
@@ -196,7 +208,14 @@ public class T9InputMethodService extends InputMethodService {
             hasPendingChar = false;
             lastKeyId = -1;
             tapIndex = 0;
+            updateStatus("ready");
         }
+    }
+
+    private void updateStatus(String detail) {
+        if (statusBar == null) return;
+        String modeLabel = (inputMode == 2) ? "123" : ((inputMode == 1) ? "ABC" : "abc");
+        statusBar.setText(modeLabel + "  •  " + detail);
     }
 
     private String getCharsForKey(int keyId) {
@@ -273,6 +292,7 @@ public class T9InputMethodService extends InputMethodService {
             btn0.setText("0\nSPACE");
             btnStar.setText("*\n+ - @");
         }
+        updateStatus("ready");
     }
 
     @Override
