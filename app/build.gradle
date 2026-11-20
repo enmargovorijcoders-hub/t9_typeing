@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace 'com.simple.t9keyboard'
+    namespace 'com.enmar.t9keyboard'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.simple.t9keyboard"
+        applicationId "com.enmar.t9keyboard"
         minSdk 14
         targetSdk 34
         versionCode 1
