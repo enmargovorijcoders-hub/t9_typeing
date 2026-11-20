@@ -13,7 +13,7 @@ public class T9InputMethodService extends InputMethodService {
 
     private static final long MULTI_TAP_TIMEOUT_MS = 850L;
 
-    // Mode: 0 = lowercase (abc), 1 = uppercase (ABC), 2 = numbers only (123)
+    // 0 = lowercase (abc), 1 = uppercase (ABC), 2 = numbers only (123)
     private int inputMode = 0;
 
     private int lastKeyId = -1;
@@ -35,23 +35,23 @@ public class T9InputMethodService extends InputMethodService {
     public View onCreateInputView() {
         View root = getLayoutInflater().inflate(R.layout.keyboard_view, null);
 
-        btn1 = root.findViewById(R.id.key_1);
-        btn2 = root.findViewById(R.id.key_2);
-        btn3 = root.findViewById(R.id.key_3);
-        btn4 = root.findViewById(R.id.key_4);
-        btn5 = root.findViewById(R.id.key_5);
-        btn6 = root.findViewById(R.id.key_6);
-        btn7 = root.findViewById(R.id.key_7);
-        btn8 = root.findViewById(R.id.key_8);
-        btn9 = root.findViewById(R.id.key_9);
-        btn0 = root.findViewById(R.id.key_0);
-        btnStar = root.findViewById(R.id.key_star);
-        btnHash = root.findViewById(R.id.key_hash);
+        btn1 = (Button) root.findViewById(R.id.key_1);
+        btn2 = (Button) root.findViewById(R.id.key_2);
+        btn3 = (Button) root.findViewById(R.id.key_3);
+        btn4 = (Button) root.findViewById(R.id.key_4);
+        btn5 = (Button) root.findViewById(R.id.key_5);
+        btn6 = (Button) root.findViewById(R.id.key_6);
+        btn7 = (Button) root.findViewById(R.id.key_7);
+        btn8 = (Button) root.findViewById(R.id.key_8);
+        btn9 = (Button) root.findViewById(R.id.key_9);
+        btn0 = (Button) root.findViewById(R.id.key_0);
+        btnStar = (Button) root.findViewById(R.id.key_star);
+        btnHash = (Button) root.findViewById(R.id.key_hash);
 
-        btnDel = root.findViewById(R.id.key_del);
-        btnCase = root.findViewById(R.id.key_case);
-        btnEnter = root.findViewById(R.id.key_enter);
-        btnNext = root.findViewById(R.id.key_next);
+        btnDel = (Button) root.findViewById(R.id.key_del);
+        btnCase = (Button) root.findViewById(R.id.key_case);
+        btnEnter = (Button) root.findViewById(R.id.key_enter);
+        btnNext = (Button) root.findViewById(R.id.key_next);
 
         View.OnClickListener dialClickListener = new View.OnClickListener() {
             @Override
@@ -76,11 +76,7 @@ public class T9InputMethodService extends InputMethodService {
             @Override
             public void onClick(View v) {
                 commitPendingChar();
-                if (inputMode == 2) {
-                    inputMode = 0;
-                } else {
-                    inputMode = 2;
-                }
+                inputMode = (inputMode == 2) ? 0 : 2;
                 updateKeyLabels();
             }
         });
@@ -89,11 +85,7 @@ public class T9InputMethodService extends InputMethodService {
             @Override
             public void onClick(View v) {
                 commitPendingChar();
-                if (inputMode == 0) {
-                    inputMode = 1;
-                } else {
-                    inputMode = 0;
-                }
+                inputMode = (inputMode == 0) ? 1 : 0;
                 updateKeyLabels();
             }
         });
@@ -135,7 +127,7 @@ public class T9InputMethodService extends InputMethodService {
                 InputConnection ic = getCurrentInputConnection();
                 if (ic == null) return;
                 EditorInfo ei = getCurrentInputEditorInfo();
-                if (ei != null && (ei.imeOptions & EditorInfo.IME_FLAG_NO_ENTER_ACTION) == 0) {
+                if (ei != null) {
                     int action = ei.imeOptions & EditorInfo.IME_MASK_ACTION;
                     if (action != EditorInfo.IME_ACTION_NONE && action != EditorInfo.IME_ACTION_UNSPECIFIED) {
                         ic.performEditorAction(action);
@@ -165,14 +157,14 @@ public class T9InputMethodService extends InputMethodService {
         if (inputMode == 2) {
             commitPendingChar();
             String num = getNumberForKey(keyId);
-            if (num != null) {
+            if (num.length() > 0) {
                 ic.commitText(num, 1);
             }
             return;
         }
 
         String chars = getCharsForKey(keyId);
-        if (chars == null || chars.isEmpty()) return;
+        if (chars.length() == 0) return;
 
         handler.removeCallbacks(commitRunnable);
 
@@ -240,8 +232,7 @@ public class T9InputMethodService extends InputMethodService {
     private void updateKeyLabels() {
         if (inputMode == 2) {
             btnCase.setText("abc");
-            btnHash.setText("#
-ABC");
+            btnHash.setText("#\nABC");
             btn1.setText("1");
             btn2.setText("2");
             btn3.setText("3");
@@ -255,56 +246,32 @@ ABC");
             btnStar.setText("*");
         } else if (inputMode == 1) {
             btnCase.setText("ABC");
-            btnHash.setText("#
-123");
-            btn1.setText("1
-.,?!");
-            btn2.setText("2
-ABC");
-            btn3.setText("3
-DEF");
-            btn4.setText("4
-GHI");
-            btn5.setText("5
-JKL");
-            btn6.setText("6
-MNO");
-            btn7.setText("7
-PQRS");
-            btn8.setText("8
-TUV");
-            btn9.setText("9
-WXYZ");
-            btn0.setText("0
-SPACE");
-            btnStar.setText("*
-+ - @");
+            btnHash.setText("#\n123");
+            btn1.setText("1\n.,?!");
+            btn2.setText("2\nABC");
+            btn3.setText("3\nDEF");
+            btn4.setText("4\nGHI");
+            btn5.setText("5\nJKL");
+            btn6.setText("6\nMNO");
+            btn7.setText("7\nPQRS");
+            btn8.setText("8\nTUV");
+            btn9.setText("9\nWXYZ");
+            btn0.setText("0\nSPACE");
+            btnStar.setText("*\n+ - @");
         } else {
             btnCase.setText("abc");
-            btnHash.setText("#
-123");
-            btn1.setText("1
-.,?!");
-            btn2.setText("2
-abc");
-            btn3.setText("3
-def");
-            btn4.setText("4
-ghi");
-            btn5.setText("5
-jkl");
-            btn6.setText("6
-mno");
-            btn7.setText("7
-pqrs");
-            btn8.setText("8
-tuv");
-            btn9.setText("9
-wxyz");
-            btn0.setText("0
-SPACE");
-            btnStar.setText("*
-+ - @");
+            btnHash.setText("#\n123");
+            btn1.setText("1\n.,?!");
+            btn2.setText("2\nabc");
+            btn3.setText("3\ndef");
+            btn4.setText("4\nghi");
+            btn5.setText("5\njkl");
+            btn6.setText("6\nmno");
+            btn7.setText("7\npqrs");
+            btn8.setText("8\ntuv");
+            btn9.setText("9\nwxyz");
+            btn0.setText("0\nSPACE");
+            btnStar.setText("*\n+ - @");
         }
     }
 
